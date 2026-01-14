@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { UsuariosPage, UsuarioFormPage, UsuarioPasswordPage } from './pages/seguridad';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -23,12 +24,21 @@ function App() {
         }
       >
         <Route index element={<DashboardPage />} />
-        <Route path="emergencias/*" element={<div>Módulo Emergencias (Fase 2)</div>} />
-        <Route path="inventario/*" element={<div>Módulo Inventario (Fase 2)</div>} />
-        <Route path="beneficiarios/*" element={<div>Módulo Beneficiarios (Fase 2)</div>} />
-        <Route path="entregas/*" element={<div>Módulo Entregas (Fase 2)</div>} />
-        <Route path="configuracion/*" element={<div>Módulo Configuración (Fase 2)</div>} />
-        <Route path="seguridad/*" element={<div>Módulo Seguridad (Fase 2)</div>} />
+        
+        {/* Módulo Seguridad */}
+        <Route path="seguridad/usuarios" element={<UsuariosPage />} />
+        <Route path="seguridad/usuarios/nuevo" element={<UsuarioFormPage />} />
+        <Route path="seguridad/usuarios/:id" element={<UsuarioFormPage />} />
+        <Route path="seguridad/usuarios/:id/password" element={<UsuarioPasswordPage />} />
+        <Route path="seguridad/roles" element={<div className="p-6">Módulo Roles (Próximamente)</div>} />
+        <Route path="seguridad/permisos" element={<div className="p-6">Módulo Permisos (Próximamente)</div>} />
+        
+        {/* Otros módulos - Pendientes */}
+        <Route path="emergencias/*" element={<div className="p-6">Módulo Emergencias (Fase 3)</div>} />
+        <Route path="inventario/*" element={<div className="p-6">Módulo Inventario (Fase 4)</div>} />
+        <Route path="beneficiarios/*" element={<div className="p-6">Módulo Beneficiarios (Fase 4)</div>} />
+        <Route path="entregas/*" element={<div className="p-6">Módulo Entregas (Fase 5)</div>} />
+        <Route path="configuracion/*" element={<div className="p-6">Módulo Configuración (Fase 3)</div>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

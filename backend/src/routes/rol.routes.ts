@@ -9,15 +9,15 @@ const router = Router();
 router.use(authenticate);
 
 // GET /roles - Listar todos los roles
-router.get('/', authorize(['roles:leer']), rolController.findAll);
+router.get('/', authorize('roles:leer'), rolController.findAll);
 
 // GET /roles/permisos - Listar todos los permisos
-router.get('/permisos', authorize(['roles:leer']), rolController.findAllPermisos);
+router.get('/permisos', authorize('roles:leer'), rolController.findAllPermisos);
 
 // GET /roles/:id - Obtener rol por ID
 router.get(
   '/:id',
-  authorize(['roles:leer']),
+  authorize('roles:leer'),
   [param('id').isUUID()],
   validate,
   rolController.findById

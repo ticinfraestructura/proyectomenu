@@ -12,7 +12,7 @@ router.use(authenticate);
 // GET /usuarios - Listar usuarios (con paginación y filtros)
 router.get(
   '/',
-  authorize(['usuarios:leer']),
+  authorize('usuarios:leer'),
   [
     query('page').optional().isInt({ min: 1 }),
     query('limit').optional().isInt({ min: 1, max: 100 }),
@@ -26,7 +26,7 @@ router.get(
 // GET /usuarios/:id - Obtener usuario por ID
 router.get(
   '/:id',
-  authorize(['usuarios:leer']),
+  authorize('usuarios:leer'),
   [param('id').isUUID()],
   validate,
   usuarioController.findById
@@ -35,7 +35,7 @@ router.get(
 // POST /usuarios - Crear usuario
 router.post(
   '/',
-  authorize(['usuarios:crear']),
+  authorize('usuarios:crear'),
   [
     body('nombres').notEmpty().trim().isLength({ min: 2, max: 100 }),
     body('apellidos').notEmpty().trim().isLength({ min: 2, max: 100 }),
@@ -52,7 +52,7 @@ router.post(
 // PUT /usuarios/:id - Actualizar usuario
 router.put(
   '/:id',
-  authorize(['usuarios:actualizar']),
+  authorize('usuarios:actualizar'),
   [
     param('id').isUUID(),
     body('nombres').optional().trim().isLength({ min: 2, max: 100 }),
@@ -70,7 +70,7 @@ router.put(
 // DELETE /usuarios/:id - Eliminar usuario
 router.delete(
   '/:id',
-  authorize(['usuarios:eliminar']),
+  authorize('usuarios:eliminar'),
   [param('id').isUUID()],
   validate,
   usuarioController.delete
@@ -79,7 +79,7 @@ router.delete(
 // PATCH /usuarios/:id/toggle-active - Activar/Desactivar usuario
 router.patch(
   '/:id/toggle-active',
-  authorize(['usuarios:actualizar']),
+  authorize('usuarios:actualizar'),
   [param('id').isUUID()],
   validate,
   usuarioController.toggleActive
@@ -88,7 +88,7 @@ router.patch(
 // PATCH /usuarios/:id/reset-password - Resetear contraseña
 router.patch(
   '/:id/reset-password',
-  authorize(['usuarios:actualizar']),
+  authorize('usuarios:actualizar'),
   [
     param('id').isUUID(),
     body('password').isLength({ min: 8 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/),
