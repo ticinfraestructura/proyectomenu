@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: humanitarian_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-humanitarian_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-humanitarian_pass_123}
+      POSTGRES_DB: ${POSTGRES_DB:-humanitarian_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-humanitarian_user} -d ${POSTGRES_DB:-humanitarian_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - humanitarian_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: humanitarian_backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://humanitarian_user:humanitarian_pass_123@postgres:5432/humanitarian_db}
+      JWT_SECRET: ${JWT_SECRET:-your_super_secret_jwt_key}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      NODE_ENV: production
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - humanitarian_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
+    container_name: humanitarian_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - humanitarian_network
+
+volumes:
+  postgres_data:
+
+networks:
+  humanitarian_network:
+    driver: bridge

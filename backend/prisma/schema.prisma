@@ -1,0 +1,407 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ==================== SEGURIDAD ====================
+
+model Usuario {
+  id              String    @id @default(uuid())
+  nombres         String    
+  apellidos       String    
+  email           String    @unique 
+  celular         String    
+  passwordHash    String    @map("password_hash")
+  activo          Boolean   @default(true)
+  fechaRegistro   DateTime  @default(now()) @map("fecha_registro")
+  ultimoAcceso    DateTime? @map("ultimo_acceso")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  roles           UsuarioRol[]
+  refreshTokens   RefreshToken[]
+  auditLogs       AuditLog[]
+  
+  // Relaciones de auditoría
+  bodegasCreadas      Bodega[]      @relation("BodegaCreatedBy")
+  bodegasActualizadas Bodega[]      @relation("BodegaUpdatedBy")
+  movimientosRegistrados Movimiento[] @relation("MovimientoRegistradoPor")
+  entregasRealizadas  Entrega[]     @relation("EntregaEntregadoPor")
+  actasResponsable    ActaEntrega[] @relation("ActaResponsable")
+
+  @@map("usuarios")
+}
+
+model Rol {
+  id          String    @id @default(uuid())
+  codigo      String    @unique 
+  nombre      String    
+  descripcion String?   
+  activo      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  usuarios    UsuarioRol[]
+  permisos    RolPermiso[]
+
+  @@map("roles")
+}
+
+model Permiso {
+  id        String   @id @default(uuid())
+  codigo    String   @unique 
+  nombre    String   
+  modulo    String   
+  accion    String    // crear, leer, actualizar, eliminar
+  createdAt DateTime @default(now()) @map("created_at")
+
+  roles     RolPermiso[]
+
+  @@map("permisos")
+}
+
+model UsuarioRol {
+  usuarioId String   @map("usuario_id")
+  rolId     String   @map("rol_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  rol       Rol      @relation(fields: [rolId], references: [id], onDelete: Cascade)
+
+  @@id([usuarioId, rolId])
+  @@map("usuario_roles")
+}
+
+model RolPermiso {
+  rolId     String   @map("rol_id")
+  permisoId String   @map("permiso_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  rol       Rol      @relation(fields: [rolId], references: [id], onDelete: Cascade)
+  permiso   Permiso  @relation(fields: [permisoId], references: [id], onDelete: Cascade)
+
+  @@id([rolId, permisoId])
+  @@map("rol_permisos")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  usuarioId String   @map("usuario_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  usuarioId  String?  @map("usuario_id")
+  accion     String   
+  entidad    String   
+  entidadId  String?  @map("entidad_id")
+  datosAnt   String?  @map("datos_anteriores")
+  datosNuev  String?  @map("datos_nuevos")
+  ip         String?  
+  userAgent  String?  @map("user_agent") 
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  usuario    Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+// ==================== CONFIGURACIÓN ====================
+
+model CategoriaProducto {
+  id          String    @id @default(uuid())
+  codigo      String    @unique 
+  nombre      String    
+  descripcion String?   
+  activo      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  productos   Producto[]
+
+  @@map("categorias_producto")
+}
+
+model UnidadMedida {
+  id          String    @id @default(uuid())
+  codigo      String    @unique 
+  nombre      String    
+  abreviatura String    
+  activo      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  productos   Producto[]
+
+  @@map("unidades_medida")
+}
+
+// ==================== EMERGENCIAS ====================
+
+model TipoDesastre {
+  id          String    @id @default(uuid())
+  codigo      String    @unique 
+  nombre      String    
+  descripcion String?   
+  activo      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  eventos     EventoEmergencia[]
+
+  @@map("tipos_desastre")
+}
+
+model EventoEmergencia {
+  id              String    @id @default(uuid())
+  nombre          String    
+  tipoDesastreId  String    @map("tipo_desastre_id")
+  fechaInicio     DateTime  @map("fecha_inicio")
+  fechaFin        DateTime? @map("fecha_fin")
+  departamento    String    
+  municipio       String    
+  estado          String    @default("activo")  // activo, cerrado, suspendido
+  descripcion     String?   
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  tipoDesastre    TipoDesastre    @relation(fields: [tipoDesastreId], references: [id])
+  zonasAfectadas  ZonaAfectada[]
+  entregas        Entrega[]
+  actas           ActaEntrega[]
+
+  @@map("eventos_emergencia")
+}
+
+model ZonaAfectada {
+  id                  String    @id @default(uuid())
+  nombre              String    
+  eventoEmergenciaId  String    @map("evento_emergencia_id")
+  coordenadas         String?   
+  nivelAfectacion     String     // alto, medio, bajo
+  poblacionEstimada   Int?      @map("poblacion_estimada")
+  descripcion         String?   
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  eventoEmergencia    EventoEmergencia @relation(fields: [eventoEmergenciaId], references: [id], onDelete: Cascade)
+  familias            Familia[]
+
+  @@map("zonas_afectadas")
+}
+
+// ==================== INVENTARIO ====================
+
+model Producto {
+  id              String    @id @default(uuid())
+  codigo          String    @unique 
+  nombre          String    
+  categoriaId     String    @map("categoria_id")
+  unidadMedidaId  String    @map("unidad_medida_id")
+  stockMinimo     Int       @default(0) @map("stock_minimo")
+  stockActual     Int       @default(0) @map("stock_actual")
+  perecedero      Boolean   @default(false)
+  fechaVencimiento DateTime? @map("fecha_vencimiento")
+  descripcion     String?   
+  activo          Boolean   @default(true)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  categoria       CategoriaProducto @relation(fields: [categoriaId], references: [id])
+  unidadMedida    UnidadMedida      @relation(fields: [unidadMedidaId], references: [id])
+  movimientos     Movimiento[]
+  kitProductos    KitProducto[]
+
+  @@map("productos")
+}
+
+model Bodega {
+  id                  String    @id @default(uuid())
+  codigo              String    @unique 
+  nombre              String    
+  direccion           String    
+  capacidad           Int?
+  responsableNombre   String    @map("responsable_nombre") 
+  responsableEmail    String    @map("responsable_email") 
+  responsableCelular  String    @map("responsable_celular") 
+  activo              Boolean   @default(true)
+  createdById         String?   @map("created_by_id")
+  updatedById         String?   @map("updated_by_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  createdBy           Usuario?  @relation("BodegaCreatedBy", fields: [createdById], references: [id])
+  updatedBy           Usuario?  @relation("BodegaUpdatedBy", fields: [updatedById], references: [id])
+  movimientos         Movimiento[]
+
+  @@map("bodegas")
+}
+
+model Movimiento {
+  id              String    @id @default(uuid())
+  tipo            String     // entrada, salida
+  productoId      String    @map("producto_id")
+  bodegaId        String    @map("bodega_id")
+  cantidad        Int
+  fecha           DateTime  @default(now())
+  observaciones   String?   
+  registradoPorId String    @map("registrado_por_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  producto        Producto  @relation(fields: [productoId], references: [id])
+  bodega          Bodega    @relation(fields: [bodegaId], references: [id])
+  registradoPor   Usuario   @relation("MovimientoRegistradoPor", fields: [registradoPorId], references: [id])
+
+  @@map("movimientos")
+}
+
+// ==================== BENEFICIARIOS ====================
+
+model CondicionEspecial {
+  id          String    @id @default(uuid())
+  codigo      String    @unique 
+  nombre      String    
+  descripcion String?   
+  activo      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  personas    PersonaCondicion[]
+
+  @@map("condiciones_especiales")
+}
+
+model Persona {
+  id              String    @id @default(uuid())
+  documento       String    @unique 
+  tipoDocumento   String    @map("tipo_documento") 
+  nombres         String    
+  apellidos       String    
+  fechaNacimiento DateTime? @map("fecha_nacimiento")
+  genero          String?   
+  email           String?   
+  celular         String    
+  direccion       String?   
+  activo          Boolean   @default(true)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  condiciones     PersonaCondicion[]
+  familiasJefe    Familia[] @relation("JefeFamilia")
+
+  @@map("personas")
+}
+
+model PersonaCondicion {
+  personaId   String   @map("persona_id")
+  condicionId String   @map("condicion_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  persona     Persona           @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  condicion   CondicionEspecial @relation(fields: [condicionId], references: [id], onDelete: Cascade)
+
+  @@id([personaId, condicionId])
+  @@map("persona_condiciones")
+}
+
+model Familia {
+  id                String    @id @default(uuid())
+  codigo            String    @unique 
+  jefeFamiliaId     String    @map("jefe_familia_id")
+  cantidadMiembros  Int       @map("cantidad_miembros")
+  zonaAfectadaId    String?   @map("zona_afectada_id")
+  vulnerabilidad    String?    // alta, media, baja
+  contactoEmail     String?   @map("contacto_email") 
+  contactoCelular   String    @map("contacto_celular") 
+  observaciones     String?   
+  activo            Boolean   @default(true)
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  jefeFamilia       Persona      @relation("JefeFamilia", fields: [jefeFamiliaId], references: [id])
+  zonaAfectada      ZonaAfectada? @relation(fields: [zonaAfectadaId], references: [id])
+  entregas          Entrega[]
+
+  @@map("familias")
+}
+
+// ==================== ENTREGAS ====================
+
+model KitAyuda {
+  id          String    @id @default(uuid())
+  codigo      String    @unique 
+  nombre      String    
+  descripcion String?   
+  activo      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  productos   KitProducto[]
+  entregas    Entrega[]
+
+  @@map("kits_ayuda")
+}
+
+model KitProducto {
+  kitId       String   @map("kit_id")
+  productoId  String   @map("producto_id")
+  cantidad    Int
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  kit         KitAyuda @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  producto    Producto @relation(fields: [productoId], references: [id])
+
+  @@id([kitId, productoId])
+  @@map("kit_productos")
+}
+
+model Entrega {
+  id                  String    @id @default(uuid())
+  familiaId           String    @map("familia_id")
+  eventoEmergenciaId  String    @map("evento_emergencia_id")
+  kitAyudaId          String    @map("kit_ayuda_id")
+  fecha               DateTime  @default(now())
+  observaciones       String?   
+  entregadoPorId      String    @map("entregado_por_id")
+  firmaDigital        String?   @map("firma_digital") 
+  actaEntregaId       String?   @map("acta_entrega_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  familia             Familia          @relation(fields: [familiaId], references: [id])
+  eventoEmergencia    EventoEmergencia @relation(fields: [eventoEmergenciaId], references: [id])
+  kitAyuda            KitAyuda         @relation(fields: [kitAyudaId], references: [id])
+  entregadoPor        Usuario          @relation("EntregaEntregadoPor", fields: [entregadoPorId], references: [id])
+  actaEntrega         ActaEntrega?     @relation(fields: [actaEntregaId], references: [id])
+
+  @@unique([familiaId, eventoEmergenciaId])
+  @@map("entregas")
+}
+
+model ActaEntrega {
+  id                  String    @id @default(uuid())
+  numeroActa          String    @unique @map("numero_acta") 
+  fecha               DateTime  @default(now())
+  eventoEmergenciaId  String    @map("evento_emergencia_id")
+  responsableId       String    @map("responsable_id")
+  observaciones       String?   
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  eventoEmergencia    EventoEmergencia @relation(fields: [eventoEmergenciaId], references: [id])
+  responsable         Usuario          @relation("ActaResponsable", fields: [responsableId], references: [id])
+  entregas            Entrega[]
+
+  @@map("actas_entrega")
+}
