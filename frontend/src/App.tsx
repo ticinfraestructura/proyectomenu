@@ -4,7 +4,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { UsuariosPage, UsuarioFormPage, UsuarioPasswordPage } from './pages/seguridad';
+import { UsuariosPage, UsuarioFormPage, UsuarioPasswordPage, RolesPage, RolFormPage } from './pages/seguridad';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -30,7 +30,9 @@ function App() {
         <Route path="seguridad/usuarios/nuevo" element={<UsuarioFormPage />} />
         <Route path="seguridad/usuarios/:id" element={<UsuarioFormPage />} />
         <Route path="seguridad/usuarios/:id/password" element={<UsuarioPasswordPage />} />
-        <Route path="seguridad/roles" element={<div className="p-6">Módulo Roles (Próximamente)</div>} />
+        <Route path="seguridad/roles" element={<RolesPage />} />
+        <Route path="seguridad/roles/nuevo" element={<RolFormPage />} />
+        <Route path="seguridad/roles/:id" element={<RolFormPage />} />
         <Route path="seguridad/permisos" element={<div className="p-6">Módulo Permisos (Próximamente)</div>} />
         
         {/* Otros módulos - Pendientes */}
