@@ -33,7 +33,7 @@ export const authenticate = async (
   }
 };
 
-export const authorize = (...allowedRoles: string[]) => {
+export const authorize = (...requiredPermissions: string[]) => {
   return async (
     req: Request,
     _res: Response,
@@ -44,11 +44,49 @@ export const authorize = (...allowedRoles: string[]) => {
         throw new AppError('User not authenticated', 401);
       }
 
-      const hasRole = req.user.roles.some((role) =>
-        allowedRoles.includes(role)
+      // Si el usuario tiene rol ADMIN, permitir todo
+      if (req.user.roles.includes('ADMIN')) {
+        return next();
+      }
+
+      // Obtener permisos del usuario desde la DB
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: req.user.userId },
+        include: {
+          roles: {
+            include: {
+              rol: {
+                include: {
+                  permisos: {
+                    include: {
+                      permiso: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!usuario) {
+        throw new AppError('User not found', 404);
+      }
+
+      // Obtener todos los códigos de permisos del usuario
+      const userPermissions = new Set<string>();
+      usuario.roles.forEach((ur) => {
+        ur.rol.permisos.forEach((rp) => {
+          userPermissions.add(rp.permiso.codigo);
+        });
+      });
+
+      // Verificar si tiene al menos uno de los permisos requeridos
+      const hasPermission = requiredPermissions.some((perm) =>
+        userPermissions.has(perm)
       );
 
-      if (!hasRole) {
+      if (!hasPermission) {
         throw new AppError('Access denied. Insufficient permissions', 403);
       }
 
