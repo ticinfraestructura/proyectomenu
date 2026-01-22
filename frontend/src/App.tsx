@@ -6,6 +6,7 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { UsuariosPage, UsuarioFormPage, UsuarioPasswordPage, RolesPage, RolFormPage } from './pages/seguridad';
 import { CategoriasPage, CategoriaFormPage, UnidadesPage, UnidadFormPage } from './pages/configuracion';
+import { TiposDesastrePage, TipoDesastreFormPage, EventosPage, EventoFormPage, EventoDetallePage, ZonasPage, ZonaFormPage } from './pages/emergencias';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -44,8 +45,20 @@ function App() {
         <Route path="configuracion/unidades/nuevo" element={<UnidadFormPage />} />
         <Route path="configuracion/unidades/:id" element={<UnidadFormPage />} />
         
+        {/* Módulo Emergencias */}
+        <Route path="emergencias/tipos" element={<TiposDesastrePage />} />
+        <Route path="emergencias/tipos/nuevo" element={<TipoDesastreFormPage />} />
+        <Route path="emergencias/tipos/:id" element={<TipoDesastreFormPage />} />
+        <Route path="emergencias/eventos" element={<EventosPage />} />
+        <Route path="emergencias/eventos/nuevo" element={<EventoFormPage />} />
+        <Route path="emergencias/eventos/:id" element={<EventoDetallePage />} />
+        <Route path="emergencias/eventos/:id/editar" element={<EventoFormPage />} />
+        <Route path="emergencias/zonas" element={<ZonasPage />} />
+        <Route path="emergencias/zonas/nuevo" element={<ZonaFormPage />} />
+        <Route path="emergencias/zonas/:id" element={<ZonaFormPage />} />
+        <Route path="emergencias/zonas/:id/editar" element={<ZonaFormPage />} />
+        
         {/* Otros módulos - Pendientes */}
-        <Route path="emergencias/*" element={<div className="p-6">Módulo Emergencias (Fase 3)</div>} />
         <Route path="inventario/*" element={<div className="p-6">Módulo Inventario (Fase 4)</div>} />
         <Route path="beneficiarios/*" element={<div className="p-6">Módulo Beneficiarios (Fase 4)</div>} />
         <Route path="entregas/*" element={<div className="p-6">Módulo Entregas (Fase 5)</div>} />
