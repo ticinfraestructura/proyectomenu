@@ -63,18 +63,18 @@ export function MovimientosPage() {
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
-    tipo: '',
-    productoId: '',
-    bodegaId: '',
+    tipo: 'all',
+    productoId: 'all',
+    bodegaId: 'all',
   });
 
   const fetchMovimientos = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (filters.tipo) params.append('tipo', filters.tipo);
-      if (filters.productoId) params.append('productoId', filters.productoId);
-      if (filters.bodegaId) params.append('bodegaId', filters.bodegaId);
+      if (filters.tipo && filters.tipo !== 'all') params.append('tipo', filters.tipo);
+      if (filters.productoId && filters.productoId !== 'all') params.append('productoId', filters.productoId);
+      if (filters.bodegaId && filters.bodegaId !== 'all') params.append('bodegaId', filters.bodegaId);
       
       const response = await api.get(`/movimientos?${params.toString()}`);
       setMovimientos(response.data.data);
@@ -163,7 +163,7 @@ export function MovimientosPage() {
                   <SelectValue placeholder="Todos los tipos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los tipos</SelectItem>
+                  <SelectItem value="all">Todos los tipos</SelectItem>
                   <SelectItem value="entrada">Entradas</SelectItem>
                   <SelectItem value="salida">Salidas</SelectItem>
                 </SelectContent>
@@ -175,7 +175,7 @@ export function MovimientosPage() {
                   <SelectValue placeholder="Todos los productos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los productos</SelectItem>
+                  <SelectItem value="all">Todos los productos</SelectItem>
                   {productos.map((producto) => (
                     <SelectItem key={producto.id} value={producto.id}>
                       {producto.nombre}
@@ -190,7 +190,7 @@ export function MovimientosPage() {
                   <SelectValue placeholder="Todas las bodegas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas las bodegas</SelectItem>
+                  <SelectItem value="all">Todas las bodegas</SelectItem>
                   {bodegas.map((bodega) => (
                     <SelectItem key={bodega.id} value={bodega.id}>
                       {bodega.nombre}

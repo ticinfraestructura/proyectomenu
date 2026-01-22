@@ -72,14 +72,14 @@ export function ProductosPage() {
   });
   const [filters, setFilters] = useState({
     search: '',
-    categoriaId: '',
+    categoriaId: 'all',
   });
 
   const fetchProductos = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (filters.categoriaId) params.append('categoriaId', filters.categoriaId);
+      if (filters.categoriaId && filters.categoriaId !== 'all') params.append('categoriaId', filters.categoriaId);
       if (filters.search) params.append('search', filters.search);
       
       const response = await api.get(`/productos?${params.toString()}`);
@@ -210,7 +210,7 @@ export function ProductosPage() {
               <SelectValue placeholder="Todas las categorías" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas las categorías</SelectItem>
+              <SelectItem value="all">Todas las categorías</SelectItem>
               {categorias.map((categoria) => (
                 <SelectItem key={categoria.id} value={categoria.id}>
                   {categoria.nombre}
