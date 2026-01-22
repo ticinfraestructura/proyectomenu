@@ -5,6 +5,7 @@ import { MainLayout } from './components/layout/MainLayout';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { UsuariosPage, UsuarioFormPage, UsuarioPasswordPage, RolesPage, RolFormPage } from './pages/seguridad';
+import { CategoriasPage, CategoriaFormPage, UnidadesPage, UnidadFormPage } from './pages/configuracion';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -35,12 +36,19 @@ function App() {
         <Route path="seguridad/roles/:id" element={<RolFormPage />} />
         <Route path="seguridad/permisos" element={<div className="p-6">Módulo Permisos (Próximamente)</div>} />
         
+        {/* Módulo Configuración */}
+        <Route path="configuracion/categorias" element={<CategoriasPage />} />
+        <Route path="configuracion/categorias/nuevo" element={<CategoriaFormPage />} />
+        <Route path="configuracion/categorias/:id" element={<CategoriaFormPage />} />
+        <Route path="configuracion/unidades" element={<UnidadesPage />} />
+        <Route path="configuracion/unidades/nuevo" element={<UnidadFormPage />} />
+        <Route path="configuracion/unidades/:id" element={<UnidadFormPage />} />
+        
         {/* Otros módulos - Pendientes */}
         <Route path="emergencias/*" element={<div className="p-6">Módulo Emergencias (Fase 3)</div>} />
         <Route path="inventario/*" element={<div className="p-6">Módulo Inventario (Fase 4)</div>} />
         <Route path="beneficiarios/*" element={<div className="p-6">Módulo Beneficiarios (Fase 4)</div>} />
         <Route path="entregas/*" element={<div className="p-6">Módulo Entregas (Fase 5)</div>} />
-        <Route path="configuracion/*" element={<div className="p-6">Módulo Configuración (Fase 3)</div>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -73,7 +73,7 @@ const menuItems = [
     path: '/configuracion',
     permission: 'configuracion:leer',
     submenu: [
-      { label: 'Categorías de Producto', path: '/configuracion/categorias' },
+      { label: 'Categorías', path: '/configuracion/categorias' },
       { label: 'Unidades de Medida', path: '/configuracion/unidades' },
     ],
   },
