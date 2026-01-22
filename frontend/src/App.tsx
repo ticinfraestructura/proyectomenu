@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { UsuariosPage, UsuarioFormPage, UsuarioPasswordPage, RolesPage, RolFormPage } from './pages/seguridad';
 import { CategoriasPage, CategoriaFormPage, UnidadesPage, UnidadFormPage } from './pages/configuracion';
 import { TiposDesastrePage, TipoDesastreFormPage, EventosPage, EventoFormPage, EventoDetallePage, ZonasPage, ZonaFormPage } from './pages/emergencias';
+import { ProductosPage, ProductoFormPage, ProductoDetallePage, BodegasPage, BodegaFormPage, MovimientosPage } from './pages/inventario';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -58,8 +59,18 @@ function App() {
         <Route path="emergencias/zonas/:id" element={<ZonaFormPage />} />
         <Route path="emergencias/zonas/:id/editar" element={<ZonaFormPage />} />
         
+        {/* Módulo Inventario */}
+        <Route path="inventario/productos" element={<ProductosPage />} />
+        <Route path="inventario/productos/nuevo" element={<ProductoFormPage />} />
+        <Route path="inventario/productos/:id" element={<ProductoDetallePage />} />
+        <Route path="inventario/productos/:id/editar" element={<ProductoFormPage />} />
+        <Route path="inventario/bodegas" element={<BodegasPage />} />
+        <Route path="inventario/bodegas/nuevo" element={<BodegaFormPage />} />
+        <Route path="inventario/bodegas/:id" element={<BodegaFormPage />} />
+        <Route path="inventario/bodegas/:id/editar" element={<BodegaFormPage />} />
+        <Route path="inventario/movimientos" element={<MovimientosPage />} />
+        
         {/* Otros módulos - Pendientes */}
-        <Route path="inventario/*" element={<div className="p-6">Módulo Inventario (Fase 4)</div>} />
         <Route path="beneficiarios/*" element={<div className="p-6">Módulo Beneficiarios (Fase 4)</div>} />
         <Route path="entregas/*" element={<div className="p-6">Módulo Entregas (Fase 5)</div>} />
       </Route>

@@ -153,19 +153,19 @@ export const productoService = {
       },
     });
 
-    // Crear movimiento inicial si hay stock
-    if (data.stockActual > 0) {
-      await prisma.movimiento.create({
-        data: {
-          tipo: 'entrada',
-          productoId: producto.id,
-          bodegaId: 'default-bodega', // TODO: Implementar bodega por defecto
-          cantidad: data.stockActual,
-          observaciones: 'Stock inicial',
-          registradoPorId: 'admin-user', // TODO: Obtener del token
-        },
-      });
-    }
+    // TODO: Crear movimiento inicial si hay stock (requiere bodega por defecto)
+    // if (data.stockActual > 0) {
+    //   await prisma.movimiento.create({
+    //     data: {
+    //       tipo: 'entrada',
+    //       productoId: producto.id,
+    //       bodegaId: 'default-bodega',
+    //       cantidad: data.stockActual,
+    //       observaciones: 'Stock inicial',
+    //       registradoPorId: 'admin-user',
+    //     },
+    //   });
+    // }
 
     return {
       ...producto,
@@ -304,7 +304,7 @@ export const productoService = {
         bodegaId,
         cantidad,
         observaciones: observaciones || `${tipo} de stock`,
-        registradoPorId: 'admin-user', // TODO: Obtener del token
+        registradoPorId: 'c94d861e-3517-4b27-a322-3aec63517030' // ID del usuario admin
       },
       include: {
         producto: {

@@ -60,11 +60,6 @@ router.delete(
 router.get(
   '/estadisticas',
   authorize('inventario:leer'),
-  [
-    query('fechaInicio').optional().isISO8601().toDate(),
-    query('fechaFin').optional().isISO8601().toDate(),
-  ],
-  validate,
   movimientoController.getEstadisticas
 );
 
