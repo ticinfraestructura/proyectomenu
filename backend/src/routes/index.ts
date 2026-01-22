@@ -7,6 +7,9 @@ import unidadRoutes from './unidad.routes';
 import tipoDesastreRoutes from './tipoDesastre.routes';
 import eventoEmergenciaRoutes from './eventoEmergencia.routes';
 import zonaAfectadaRoutes from './zonaAfectada.routes';
+import productoRoutes from './producto.routes';
+import bodegaRoutes from './bodega.routes';
+import movimientoRoutes from './movimiento.routes';
 
 const router = Router();
 
@@ -18,5 +21,8 @@ router.use('/unidades', unidadRoutes);
 router.use('/tipos-desastre', tipoDesastreRoutes);
 router.use('/eventos', eventoEmergenciaRoutes);
 router.use('/zonas', zonaAfectadaRoutes);
+router.use('/productos', productoRoutes);
+router.use('/bodegas', bodegaRoutes);
+router.use('/movimientos', movimientoRoutes);
 
 export default router;
